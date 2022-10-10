@@ -5,7 +5,7 @@
   "files": [
     "lib/**/*"
   ],
-  "version": "1.8.1",
+  "version": "1.9.0",
   "license": "ISC",
   "description": "Clickhouse queries with in-memory bulk insert and TypeScript!",
   "keywords": [
