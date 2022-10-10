@@ -11,8 +11,9 @@
   "keywords": [
     "clickhouse",
     "bulk",
+    "batch",
     "ts",
-    "bulk insert",
+    "insert",
     "clickhouse-client",
     "clickhouse-ts",
     "client",
