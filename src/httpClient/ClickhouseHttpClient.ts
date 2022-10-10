@@ -27,16 +27,14 @@ namespace ClickhouseHttpClient {
     status: number,
     statusText: string,
     data: {
-      data: {
-        rows: number,
-        rows_before_limit_at_least?: number,
-        meta: { name: string, type: string }[],
-        data: T[],
-        statistics: {
-          elapsed: number,
-          rows_read: number,
-          bytes_read: number
-        }
+      rows: number,
+      rows_before_limit_at_least?: number,
+      meta: { name: string, type: string }[],
+      data: T[],
+      statistics: {
+        elapsed: number,
+        rows_read: number,
+        bytes_read: number
       }
     }
   }
