@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "axios": "^0.21.4",
-    "chvalid": "^0.1.3",
+    "chvalid": "^0.2.1",
     "dayjs": "^1.10.5",
     "lodash": "^4.17.21",
     "sqlstring": "^2.3.2"
