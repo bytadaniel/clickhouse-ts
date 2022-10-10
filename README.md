@@ -18,10 +18,10 @@ The Lookforsale team has been using clickhouse-ts effectively for over a year un
 Double checking data for anomalies during in-memory caching and when inserting a finished batch.
 ### ✨ Flexibility
 Flexible configuration of the Clickhouse client instance and support for all features provided by Clickhouse developers.
-### 🌈 Free for use
-The package has a public license and is available for download to any developer!
 ### 🔐 Security
 SQL Injection Protection with sqlstring
+### 🌈 Free for use
+The package has a public license and is available for download to any developer!
 
 
 ## Documentation
