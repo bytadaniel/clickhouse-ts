@@ -4,7 +4,6 @@
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/bytadaniel/clickhouse-ts?style=for-the-badge)
 ![npms.io (final)](https://img.shields.io/npms-io/final-score/clickhouse-ts?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/bytadaniel/clickhouse-ts?style=for-the-badge)
-
 ![GitHub followers](https://img.shields.io/github/followers/bytadaniel?style=social)
 
 #### Select, insert in-memory batches safely and enjoy Clickhouse!
