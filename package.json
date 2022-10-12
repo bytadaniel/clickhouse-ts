@@ -3,9 +3,11 @@
   "author": "@daniel_byta Daniel Byta",
   "main": "lib/index.js",
   "files": [
-    "lib/**/*", "*.yml", "*.json"
+    "lib/**/*",
+    "*.yml",
+    "*.json"
   ],
-  "version": "1.10.0",
+  "version": "1.11.0",
   "license": "ISC",
   "description": "Clickhouse queries with in-memory bulk insert and TypeScript!",
   "keywords": [
