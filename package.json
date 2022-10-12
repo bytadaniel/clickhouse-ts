@@ -30,7 +30,9 @@
   },
   "homepage": "https://github.com/bytadaniel/clickhouse-ts#readme",
   "scripts": {
-    "build": "rm -rf lib && tsc"
+    "build": "rm -rf lib && tsc",
+    "test": "echo test",
+    "lint": "eslint 'src/**' --fix"
   },
   "dependencies": {
     "axios": "^0.21.4",
@@ -43,8 +45,14 @@
     "@types/lodash": "^4.14.181",
     "@types/node": "^15.14.9",
     "@types/sqlstring": "^2.3.0",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "eslint": "^8.25.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-promise": "^6.0.1",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.4"
+    "typescript": "^4.8.4"
   },
   "publishConfig": {
     "access": "public"

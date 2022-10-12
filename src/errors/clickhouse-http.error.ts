@@ -1,12 +1,14 @@
-import { AxiosError } from "axios";
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { AxiosError } from 'axios'
 
 export class ClickhouseHttpError extends Error {
   status?: number
   statusText?: string
-  headers: Record<string, any>
-  config?: Record<string, any>
+  headers: Record<string, string>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config?: Record<any, any>
 
-  constructor(error: AxiosError['response']) {
+  constructor (error: AxiosError['response']) {
     super()
     this.message = error?.data
     this.status = error?.status

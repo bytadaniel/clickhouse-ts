@@ -1,2 +1,1 @@
-import { Clickhouse } from "./src/clickhouse/Clickhouse";
-export { Clickhouse }
+export { Clickhouse } from './src/clickhouse'

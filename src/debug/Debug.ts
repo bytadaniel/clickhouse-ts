@@ -17,24 +17,26 @@ export type DebugProvider =
   'row.value' |
   'row.row'
 
+type LogFunction = (...args: unknown[]) => unknown
+
 export class Debug {
   #isDebugMode: boolean
   #providersBlacklist: string[]
 
-  constructor() {
+  constructor () {
     this.#isDebugMode = false
     this.#providersBlacklist = []
   }
 
-  public setDebugMode(mode: boolean) {
+  public setDebugMode (mode: boolean): void {
     this.#isDebugMode = mode
   }
 
-  public excludeDebugProviders(providers: string[]) {
+  public excludeDebugProviders (providers: string[]): void {
     this.#providersBlacklist.push(...providers)
   }
 
-  public log(provider: DebugProvider, ...args: (string | number | Object | Function)[]) {
+  public log (provider: DebugProvider, ...args: Array<string | number | Record<string, unknown> | LogFunction>): void {
     if (
       this.#isDebugMode &&
       !this.#providersBlacklist.includes(provider)

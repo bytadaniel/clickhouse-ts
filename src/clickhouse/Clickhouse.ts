@@ -1,63 +1,68 @@
 import sqlstring from 'sqlstring'
 import { isNull, isObject } from 'lodash'
-import { ClickhouseHttpClient } from '../httpClient/ClickhouseHttpClient'
-import { ClickhouseNamespace } from './interface'
-import { debug } from '../debug/Debug'
-import { NodeJSCacheManager } from '../caching/NodeJSCacheManager'
-import { PreprocessInsertQueryError } from '../errors/PreprocessInsertQueryError'
+import {
+  InsertRows,
+  ConnectionConfig,
+  InstanceOptions,
+  FormattedRowType,
+  InsertQueryOptions,
+  SelectQueryOptions
+} from './clickhouse.interface'
 
-
-
+import { HttpClient, HttpClientResponse } from '../httpClient'
+import { debug } from '../debug'
+import { ProcessMemoryCache } from '../cache'
+import { PreprocessInsertQueryError } from '../errors'
 
 export class Clickhouse {
-  // DI
-  readonly #httpClient: ClickhouseHttpClient
-  readonly #options: ClickhouseNamespace.Options
-  readonly #defaultValues: Record<string, any>
-  readonly #cacheManager?: NodeJSCacheManager
-  #onChunkCb: ((chunkId: string, table: string, rows: ClickhouseNamespace.InsertRows) => void)[]
+  readonly #httpClient: HttpClient
+  readonly #options: InstanceOptions
+  readonly #defaultValues: Record<string, unknown>
+  readonly #cacheManager?: ProcessMemoryCache
+  #onChunkCb: Array<(chunkId: string, table: string, rows: InsertRows) => void>
 
-  constructor(
-    context: ClickhouseNamespace.Constructor,
-    options: ClickhouseNamespace.Options
+  constructor (
+    context: ConnectionConfig,
+    options: InstanceOptions
   ) {
     this.#onChunkCb = []
     this.#options = options
     this.#defaultValues = options.hooks?.useDefaultValue?.() ?? {}
-    this.#httpClient = new ClickhouseHttpClient({ context, options: options.clickhouseOptions })
+    this.#httpClient = new HttpClient({ context, options: options.clickhouseOptions })
 
     this.#cacheManager = this.getCacheManager(this.#options.cache?.provider ?? 'none')
 
-    if (this.#options.debug) {
+    if (this.#options.debug != null) {
       debug.setDebugMode(this.#options.debug.mode)
       debug.excludeDebugProviders(this.#options.debug.exclude ?? [])
     }
   }
 
-  private getCacheManager(provider: 'nodejs' | 'none') {
+  private getCacheManager (provider: 'nodejs' | 'none'): ProcessMemoryCache | undefined {
     if (provider === 'none') return
 
     const options = {
-      chunkTTLSeconds: this.#options.cache!.chunkTTLSeconds,
-      chunkExpireTimeSeconds: this.#options.cache!.chunkExpireTimeSeconds,
-      chunkSizeLimit: this.#options.cache!.chunkSizeLimit,
-      chunkResolverIntervalSeconds: this.#options.cache!.chunkResolverIntervalSeconds,
-      chunkResolveType: this.#options.cache!.chunkResolveType,
-      useInsert: async (table: string, rows: ClickhouseNamespace.InsertRows) => {
+      chunkTTLSeconds: this.#options.cache?.chunkTTLSeconds ?? 60,
+      chunkExpireTimeSeconds: this.#options.cache?.chunkExpireTimeSeconds ?? 120,
+      chunkSizeLimit: this.#options.cache?.chunkSizeLimit ?? 1000,
+      chunkResolverIntervalSeconds: this.#options.cache?.chunkResolverIntervalSeconds ?? 10,
+      chunkResolveType: this.#options.cache?.chunkResolveType ?? 'events',
+      useInsert: async (table: string, rows: InsertRows) => {
         debug.log('hook.useInsert', { table, rows })
-        this.insert(table, rows)
+        await this.insert(table, rows)
       }
     }
 
     if (provider === 'nodejs') {
-      return new NodeJSCacheManager(options)
+      return new ProcessMemoryCache(options)
     }
   }
 
-  private formatInsertRows (rows: ClickhouseNamespace.InsertRows) {
+  private formatInsertRows (rows: InsertRows): { keysArr: string[], valuesSqlFormat: string } {
     const keysArr = Object.keys(rows[0])
     const valuesSqlArr = rows.map(row => `(${keysArr.map(key => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.formatInsertValue(
           key,
           row[key],
@@ -75,18 +80,26 @@ export class Clickhouse {
     }
   }
 
-  private formatInsertValue (rowKey: string, rowValue: any, defaultValue?: any): ClickhouseNamespace.FormattedRowType {
+  private formatInsertValue (rowKey: string, rowValue: unknown, defaultValue?: unknown): FormattedRowType {
     /**
      * Check if column value not exists
      */
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const fixedRowValue = rowValue === undefined ? defaultValue : rowValue
-    if (fixedRowValue === undefined) throw new PreprocessInsertQueryError(`Cannot find value of column and has not default ${rowKey}:${fixedRowValue}`)
+    if (fixedRowValue === undefined) {
+      throw new PreprocessInsertQueryError(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        `Cannot find value of column and has not default ${rowKey}:${fixedRowValue}`
+      )
+    }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     debug.log('row.value', { fixedRowValue })
     /**
      * is Array
      */
     if (Array.isArray(fixedRowValue)) {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       return `[${fixedRowValue.map(this.formatInsertValue).join(',')}]`
     }
 
@@ -104,14 +117,14 @@ export class Clickhouse {
      * is Number
      */
     if (typeof fixedRowValue === 'number') {
-      return fixedRowValue as number
+      return fixedRowValue
     }
 
     /**
      * is String
      */
     if (typeof fixedRowValue === 'string') {
-      return sqlstring.escape(fixedRowValue) as string
+      return sqlstring.escape(fixedRowValue)
     }
 
     /**
@@ -121,6 +134,7 @@ export class Clickhouse {
       return sqlstring.escape('NULL')
     }
 
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new PreprocessInsertQueryError(`Unknown type of row [${rowKey}:${fixedRowValue}]`)
   }
 
@@ -130,12 +144,12 @@ export class Clickhouse {
    * @param rows [{ value1: 'text' }, {value2: number}]
    *
   */
-  public async insert(
+  public async insert (
     table: string,
-    rows: ClickhouseNamespace.InsertRows,
-    options: ClickhouseNamespace.InsertOptions = {}
-  ) {
-    if (!rows.length) {
+    rows: InsertRows,
+    options: InsertQueryOptions = {}
+  ): Promise<{ inserted: number, data: InsertRows }> {
+    if (rows.length === 0) {
       return { inserted: rows.length, data: rows }
     }
 
@@ -157,31 +171,31 @@ export class Clickhouse {
   */
   public async query<T>(
     query: string,
-    options: ClickhouseNamespace.QueryOptions = {}
-  ) {
-    const format = options.noFormat
+    options: SelectQueryOptions = {}
+  ): Promise<HttpClientResponse<T>> {
+    const format = options.noFormat ?? false
       ? ''
       : `FORMAT ${options.responseFormat ?? this.#options.defaultResponseFormat}`
     const request = `${query} ${format}`
 
     debug.log('ch.query', request)
 
-    return this.#httpClient.request<T>({ data: request })
+    return await this.#httpClient.request<T>({ data: request })
   }
 
-  public useCaching() {
-    if (!this.#cacheManager) {
+  public useCaching (): void {
+    if (this.#cacheManager == null) {
       throw new Error('Cache manager is not initialized!')
     }
 
     this.#cacheManager.on('chunk', (
       chunkId: string,
       table: string,
-      rows: Record<string, any>[]
+      rows: Array<Record<string, unknown>>
     ) => {
       debug.log(
         'ch.useCaching',
-        `received event 'chunk'`,
+        'received event \'chunk\'',
         { chunkId, table, rowsCount: rows.length, firstRow: rows[0] }
       )
       this.#onChunkCb.forEach(cb => cb(chunkId, table, rows))
@@ -189,16 +203,16 @@ export class Clickhouse {
   }
 
   public onChunk (
-    onChunkCb: (chunkId: string, table: string, rows: ClickhouseNamespace.InsertRows) => void
-  ) {
+    onChunkCb: (chunkId: string, table: string, rows: InsertRows) => void
+  ): void {
     this.#onChunkCb.push(onChunkCb)
   }
 
-  public async cache(
+  public async cache (
     table: string,
-    rows: ClickhouseNamespace.InsertRows
-  ) {
-    if (!this.#cacheManager) {
+    rows: InsertRows
+  ): Promise<{ cached: number, chunk: string }> {
+    if (this.#cacheManager == null) {
       throw new Error('CacheClient is not implemented')
     }
 
@@ -223,8 +237,8 @@ export class Clickhouse {
     return result
   }
 
-  public async cleanupChunks() {
-    if (!this.#cacheManager) {
+  public async cleanupChunks (): Promise<void> {
+    if (this.#cacheManager == null) {
       throw new Error('CacheClient is not implemented')
     }
     await this.#cacheManager.gracefulShutdown()

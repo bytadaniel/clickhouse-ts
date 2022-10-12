@@ -1,28 +1,32 @@
+/* eslint-disable @typescript-eslint/no-dynamic-delete */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import dayjs from 'dayjs'
-import { EventEmitter } from "stream"
 import crypto from 'crypto'
-import { debug } from "../debug/Debug"
+import { EventEmitter } from 'stream'
+import { debug } from '../debug/debug'
 
-export class NodeJSCacheManager extends EventEmitter {
-  #tableChunks: Record<string, Record<string, unknown[]>>;
+export class ProcessMemoryCache extends EventEmitter {
+  #tableChunks: Record<string, Record<string, unknown[]>>
   #chunkResolver?: NodeJS.Timeout
   readonly #splitter = '-'
   #options: {
-    chunkTTLSeconds: number;
-    chunkExpireTimeSeconds: number;
-    chunkSizeLimit: number;
-    chunkResolverIntervalSeconds: number;
-    chunkResolveType: 'autoInsert' | 'events';
-    useInsert: (table: string, rows: Record<string, any>[]) => Promise<void>;
-  };
+    chunkTTLSeconds: number
+    chunkExpireTimeSeconds: number
+    chunkSizeLimit: number
+    chunkResolverIntervalSeconds: number
+    chunkResolveType: 'autoInsert' | 'events'
+    useInsert: (table: string, rows: Array<Record<string, unknown>>) => Promise<void>
+  }
 
-  constructor(options: {
-    chunkTTLSeconds: number,
-    chunkExpireTimeSeconds: number,
-    chunkSizeLimit: number,
-    chunkResolverIntervalSeconds: number,
-    chunkResolveType: 'autoInsert' | 'events',
-    useInsert: (table: string, rows: Record<string, any>[]) => Promise<void>
+  constructor (options: {
+    chunkTTLSeconds: number
+    chunkExpireTimeSeconds: number
+    chunkSizeLimit: number
+    chunkResolverIntervalSeconds: number
+    chunkResolveType: 'autoInsert' | 'events'
+    useInsert: (table: string, rows: Array<Record<string, unknown>>) => Promise<void>
   }) {
     super()
     if (options.chunkExpireTimeSeconds <= options.chunkTTLSeconds) {
@@ -72,14 +76,14 @@ export class NodeJSCacheManager extends EventEmitter {
    * При определенных условиях эта функция может быть вызвана,
    * вследствие чего конкретный chunk конкретной таблицы будет разрешен
    * и передан для управления во вне
-   * 
+   *
    * Существует 2 сценария разрешения чанка
    *  @stable - `chunk` event отправляет чанк всем подписантам
    *  @experimental - `autoInsert` опция, которая автоматически вставит чанк в нужную таблицу
    */
   readonly #resolveChunk = async (chunkId: string, table: string) => {
     const raw = this.#tableChunks[table][chunkId]
-    const rows = raw.map(str => JSON.parse(str as string))
+    const rows = raw.map(str => JSON.parse(str as string) as Record<string, unknown>)
 
     switch (this.#options.chunkResolveType) {
       case 'autoInsert':
@@ -87,7 +91,7 @@ export class NodeJSCacheManager extends EventEmitter {
         break
       case 'events':
         this.emit('chunk', chunkId, table, [...rows])
-        break  
+        break
       default: throw new Error('resolveType is not correct!')
     }
 
@@ -130,6 +134,7 @@ export class NodeJSCacheManager extends EventEmitter {
    */
   readonly #getChunk = (table: string) => {
     const now = dayjs()
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!this.#tableChunks[table]) {
       this.#tableChunks[table] = {}
     }
@@ -139,9 +144,7 @@ export class NodeJSCacheManager extends EventEmitter {
       const chunk = Object.keys(this.#tableChunks[table]).find(chunk => {
         const [_chunk, _table, _id, strExpiresAtUnix] = chunk.split(this.#splitter)
         const expiresAt = Number(strExpiresAtUnix)
-        if (now.unix() < expiresAt) {
-          return true
-        }
+        return now.unix() < expiresAt
       })
       return chunk ?? this.#createChunk(table)
     } else {
@@ -155,7 +158,7 @@ export class NodeJSCacheManager extends EventEmitter {
    * Эта функция получает чанк и сохраняет в нем строки
    * В случае необходимости текущий чанк разрешается и создается новый (в дополнение к интервальному разрешению)
    */
-  public async cache(table: string, items: string[]) {
+  public async cache (table: string, items: string[]) {
     let chunkCandidate = this.#getChunk(table)
     while (
       this.#tableChunks[table][chunkCandidate].length >= this.#options.chunkSizeLimit
@@ -170,7 +173,7 @@ export class NodeJSCacheManager extends EventEmitter {
 
     return {
       cached: items.length,
-      chunk: chunkCandidate,
+      chunk: chunkCandidate
     }
   }
 
@@ -178,9 +181,10 @@ export class NodeJSCacheManager extends EventEmitter {
    * Разрешение всех чанков прямо сейчас
    * Необходимо для обеспечения целостности данных при непредвиденных ошбках
    */
-  public async gracefulShutdown (codeOrSignal: any = '') {
+  public async gracefulShutdown (codeOrSignal = '') {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     debug.log('panic.critical', `[${codeOrSignal}] Crytycal occured. Imeddiately resolving all in-memory rows`)
-    if (this.#chunkResolver) clearInterval(this.#chunkResolver)
+    if (this.#chunkResolver != null) clearInterval(this.#chunkResolver)
     const immediately = true
     await this.#exploreChunks(immediately)
   }
