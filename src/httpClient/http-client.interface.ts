@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios'
 import { InsertQueryOptions, SelectQueryOptions } from '../clickhouse'
 
 export interface HttpClientConstructor {
@@ -19,9 +20,9 @@ export interface HttpClientRequest {
 }
 
 export interface HttpClientResponse<T> {
-  headers: Record<string, string>
-  status: number
-  statusText: string
+  headers: AxiosResponse['headers']
+  status: AxiosResponse['status']
+  statusText: AxiosResponse['statusText']
   data: {
     rows: number
     rows_before_limit_at_least?: number
