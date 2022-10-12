@@ -3,7 +3,7 @@
   "author": "@daniel_byta Daniel Byta",
   "main": "lib/index.js",
   "files": [
-    "lib/**/*"
+    "lib/**/*", "*.yml", "*.json"
   ],
   "version": "1.10.0",
   "license": "ISC",
