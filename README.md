@@ -13,7 +13,7 @@
 ### Hello from [LookFor.sale](https://lookforsale.ru) developer which produces WB Analytics!
 ![Backers on Open Collective](https://lookforsale.ru/wp-content/uploads/2021/06/lfsw.jpg)
 
-## TS client for clickhouse database with using in-memory caching rows for bulk insertion
+## TS client for clickhouse database with using in-memory caching rows for batch insertion
 
 ### 💙 Typescript
 This package is written in TypeScript because Node.js typing development is already an industry standard.

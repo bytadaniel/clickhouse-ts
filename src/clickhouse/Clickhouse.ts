@@ -10,14 +10,14 @@ import {
   QueryOptions
 } from './interface'
 
-import { HttpClient, HttpClientResponse } from '../httpClient'
+import { HttpAxiosClient, HttpClientResponse } from '../httpClient'
 import { formatInsertRows } from '../utils'
 
 /**
  * Clickhouse is a simple client for making queries and getting responses
  */
 export class Clickhouse {
-  readonly #httpClient: HttpClient
+  readonly #httpClient: HttpAxiosClient
   readonly #options: InstanceOptions
 
   /**
@@ -31,7 +31,7 @@ export class Clickhouse {
     options: InstanceOptions
   ) {
     this.#options = options
-    this.#httpClient = new HttpClient({
+    this.#httpClient = new HttpAxiosClient({
       context,
       options: this.#options.clickhouseOptions
     })

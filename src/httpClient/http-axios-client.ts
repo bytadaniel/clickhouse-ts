@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import https from 'https'
@@ -7,15 +8,15 @@ import {
   HttpClientConstructor,
   HttpClientRequest,
   HttpClientResponse
-} from './http-client.interface'
+} from './interface'
 
-import { ClickhouseHttpError } from '../errors'
+import { HttpClickhouseAxiosError } from '../errors'
 
 /**
  * HttpClient wraps Axios and provides transparent data transfering between your code and clickhouse server
  * It uses HTTP/1 protocol
  */
-export class HttpClient {
+export class HttpAxiosClient {
   readonly #axios = axios
   readonly #https = https
 
@@ -74,7 +75,12 @@ export class HttpClient {
     const response = await this.#axios
       .request(config)
       .catch((error: AxiosError) => {
-        throw new ClickhouseHttpError(error.response)
+        throw new HttpClickhouseAxiosError({
+          message: error.response?.data as string,
+          status: error.response?.status as number,
+          statusText: error.response?.statusText as string,
+          headers: error.response?.headers
+        })
       })
 
     return {

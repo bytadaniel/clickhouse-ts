@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosResponse } from 'axios'
 import { QueryOptions } from '../clickhouse'
 
@@ -20,7 +21,7 @@ export interface HttpClientRequest {
 }
 
 export interface HttpClientResponse<T> {
-  headers: AxiosResponse['headers']
+  headers: any
   status: AxiosResponse['status']
   statusText: AxiosResponse['statusText']
   data: {
