@@ -9,7 +9,7 @@
   ],
   "version": "2.0.0",
   "license": "MIT",
-  "description": "Clickhouse client",
+  "description": "Light stable Clickhouse client",
   "keywords": [
     "clickhouse",
     "ts",
@@ -28,21 +28,18 @@
   },
   "homepage": "https://github.com/bytadaniel/clickhouse-ts#readme",
   "scripts": {
-    "build": "tsc -d",
+    "build": "rm -rf && tsc -d",
     "test": "jest",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint ./src --ext .ts"
   },
   "dependencies": {
     "axios": "^1.1.2",
     "chvalid": "^0.2.1",
     "clickcache": "^1.0.4",
-    "dayjs": "^1.11.5",
-    "lodash": "^4.17.21",
     "sqlstring": "^2.3.3"
   },
   "devDependencies": {
     "@types/jest": "^29.1.2",
-    "@types/lodash": "^4.14.186",
     "@types/node": "^18.8.4",
     "@types/sqlstring": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^5.40.0",

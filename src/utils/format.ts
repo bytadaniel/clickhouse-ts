@@ -1,8 +1,8 @@
 /* eslint-disable no-tabs */
 import ss from 'sqlstring'
-import { isObject, isNull } from 'lodash'
 import { InsertRows } from '../clickhouse'
 import { PreprocessInsertQueryError } from '../errors'
+import { isNull, isObject } from './common'
 import { FormatRowsResponse } from './interface'
 
 /**
