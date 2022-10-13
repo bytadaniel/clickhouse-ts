@@ -1,6 +1,6 @@
 {
   "name": "clickhouse-ts",
-  "author": "@daniel_byta Daniel Byta",
+  "author": "@bytadaniel Daniel Byta",
   "main": "lib/index.js",
   "files": [
     "lib/**/*",
@@ -8,19 +8,15 @@
     "*.json"
   ],
   "version": "1.11.1",
-  "license": "ISC",
-  "description": "Clickhouse queries with in-memory bulk insert and TypeScript!",
+  "license": "MIT",
+  "description": "Clickhouse client",
   "keywords": [
     "clickhouse",
-    "bulk",
-    "batch",
     "ts",
-    "insert",
+    "typescript",
     "clickhouse-client",
     "clickhouse-ts",
     "client",
-    "clickhouse-client",
-    "caching",
     "database"
   ],
   "repository": {
@@ -39,7 +35,7 @@
   "dependencies": {
     "axios": "^1.1.2",
     "chvalid": "^0.2.1",
-    "clickcache": "^1.0.2",
+    "clickcache": "^1.0.4",
     "dayjs": "^1.11.5",
     "lodash": "^4.17.21",
     "sqlstring": "^2.3.3"

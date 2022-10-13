@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios'
-import { InsertQueryOptions, SelectQueryOptions } from '../clickhouse'
+import { QueryOptions } from '../clickhouse'
 
 export interface HttpClientConstructor {
   context: {
@@ -16,7 +16,7 @@ export interface HttpClientConstructor {
 export interface HttpClientRequest {
   params?: Record<string, unknown>
   data: string
-  requestOptions?: InsertQueryOptions | SelectQueryOptions
+  requestOptions?: QueryOptions
 }
 
 export interface HttpClientResponse<T> {
