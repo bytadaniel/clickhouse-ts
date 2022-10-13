@@ -1,5 +1,7 @@
 # clickhouse-ts by @bytadaniel
 
+[![Join the chat at https://gitter.im/bytadaniel/clickhouse-ts](https://badges.gitter.im/bytadaniel/clickhouse-ts.svg)](https://gitter.im/bytadaniel/clickhouse-ts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Travis (.org)](https://img.shields.io/travis/bytadaniel/clickhouse-ts?style=for-the-badge)
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/bytadaniel/clickhouse-ts?style=for-the-badge)
 ![npms.io (final)](https://img.shields.io/npms-io/final-score/clickhouse-ts?style=for-the-badge)
