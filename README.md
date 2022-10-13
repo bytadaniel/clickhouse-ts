@@ -31,14 +31,10 @@ SQL Injection Protection with sqlstring
 The package has a public license and is available for download to any developer!
 
 
-## Documentation
+## Usage
 
 ```js
-import { Clickhouse } from 'clickhouse-ts'
-import fs from 'fs'
-
-
-const clickhouseInstance = new Clickhouse(
+const client = new Clickhouse(
   {
     url: 'url',
     port: 8443,
@@ -48,21 +44,6 @@ const clickhouseInstance = new Clickhouse(
     ca: fs.readFileSync('cert.crt')
   },
   {
-    debug: {
-      mode: true,
-      /* List of providers to exclude from logging */
-      exclude: [...providers]
-    },
-    cache: {
-        /* after this time chunk will be completed */ 
-        chunkTTLSeconds: 3600,
-        /* interval of checking chunks */
-        chunkResolverIntervalSeconds: 180,
-        /* count of rows in one chunk */
-        chunkSizeLimit: 10_000,
-        /* 'events': on completed chunk emits event 'chunk'. You can save rows as you want */
-        chunkResolveType: 'events'
-    },
     defaultResponseFormat: 'JSON',
     clickhouseOptions: {
       /* https://clickhouse.tech/docs/en/operations/settings/settings/ */
@@ -71,45 +52,26 @@ const clickhouseInstance = new Clickhouse(
   }
 )
 
-clickhouseInstance.useCaching()
-
-clickhouseInstance.onChunk((chunkId, table, rows) => {
-  // handle insertion
-})
-```
-
-## Cache
-```js
-const response = clickhouseInstance.cache(
-  'table_strings',
-  [{ date: '2021-01-01', string: 'str1' }],
-  {
-    responseFormat: 'CSVWithNames' // or other format
-    // other query options
-  }
-)
 ```
 
 ## Insert
 ```js
-const response = await clickhouseInstance.insert(
-  'table_strings',
-  [{ date: '2021-01-01', string: 'str1' }],
-  {
-    responseFormat: 'CSVWithNames' // or other format
-    // other query options
-  }
-)
+const response = await client.insert('table_strings', rows, {
+  responseFormat: 'CSVWithNames' // or other format
+  // other query options
+})
 ```
 
-## Query
-
+## Select
 ```js
 await clickhouseInstance.query<{ t: string }>('WITH now() as t SELECT t', {
   responseFormat: 'TSV',
   // ...other query options
 })
+```
 
+## Create
+```js
 await clickhouseInstance.query(`
   CREATE TABLE strings (
     date DateTime('UTC'),
