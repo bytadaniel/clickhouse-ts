@@ -74,7 +74,6 @@ export class HttpClient {
     const response = await this.#axios
       .request(config)
       .catch((error: AxiosError) => {
-        console.log(error)
         throw new ClickhouseHttpError(error.response)
       })
 

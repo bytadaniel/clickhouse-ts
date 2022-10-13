@@ -87,7 +87,7 @@ export class Clickhouse {
       responseFormat = this.#options.defaultResponseFormat
     } = options
 
-    if (noFormat === false) {
+    if (noFormat) {
       format = ''
     } else {
       format = `FORMAT ${responseFormat}`

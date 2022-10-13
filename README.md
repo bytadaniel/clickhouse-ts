@@ -15,7 +15,7 @@
 
 ### 💙 Typescript
 This package is written in TypeScript because Node.js typing development is already an industry standard.
-### 🖐 Bulk insert
+### 🖐 Batch insert*
 It has been empirically verified that in-memory collecting rows is the most efficient and consistent way to insert into Clickhouse. To work with built-in caching, you just need to call the useCaching() method
 ### 💪 Transparent and Stability
 clickhouse-ts doesn't use a lot of abstractions and dependencies, so it's fast and stable.
@@ -29,6 +29,9 @@ Flexible configuration of the Clickhouse client instance and support for all fea
 SQL Injection Protection with sqlstring
 ### 🌈 Free for use
 The package has a public license and is available for download to any developer!
+
+## *How can I insert in-memory batches?
+Starting from version 2.0.0 [the caching module](https://www.npmjs.com/package/clickcache) is imported separately 
 
 
 ## Usage
