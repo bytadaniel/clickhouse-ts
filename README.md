@@ -17,7 +17,7 @@
 
 ### 💙 Typescript
 This package is written in TypeScript because Node.js typing development is already an industry standard.
-### 🖐 Bulk insert
+### 🖐 Batch insert*
 It has been empirically verified that in-memory collecting rows is the most efficient and consistent way to insert into Clickhouse. To work with built-in caching, you just need to call the useCaching() method
 ### 💪 Transparent and Stability
 clickhouse-ts doesn't use a lot of abstractions and dependencies, so it's fast and stable.
@@ -32,15 +32,16 @@ SQL Injection Protection with sqlstring
 ### 🌈 Free for use
 The package has a public license and is available for download to any developer!
 
+## *How can I insert in-memory batches?
+Starting from version 2.0.0 [the caching module](https://www.npmjs.com/package/clickcache) should be imported separately.
+This is because clickcache package, like clickhouse-ts, is going to be part of my Clickhouse Node.js ecosystem.
+In addition, it planned to introduce [data validation](https://www.npmjs.com/package/chvalid), as in Joi and model generation, as in mongodb/mongoose.
 
-## Documentation
+
+## Usage
 
 ```js
-import { Clickhouse } from 'clickhouse-ts'
-import fs from 'fs'
-
-
-const clickhouseInstance = new Clickhouse(
+const client = new Clickhouse(
   {
     url: 'url',
     port: 8443,
@@ -50,21 +51,6 @@ const clickhouseInstance = new Clickhouse(
     ca: fs.readFileSync('cert.crt')
   },
   {
-    debug: {
-      mode: true,
-      /* List of providers to exclude from logging */
-      exclude: [...providers]
-    },
-    cache: {
-        /* after this time chunk will be completed */ 
-        chunkTTLSeconds: 3600,
-        /* interval of checking chunks */
-        chunkResolverIntervalSeconds: 180,
-        /* count of rows in one chunk */
-        chunkSizeLimit: 10_000,
-        /* 'events': on completed chunk emits event 'chunk'. You can save rows as you want */
-        chunkResolveType: 'events'
-    },
     defaultResponseFormat: 'JSON',
     clickhouseOptions: {
       /* https://clickhouse.tech/docs/en/operations/settings/settings/ */
@@ -73,45 +59,26 @@ const clickhouseInstance = new Clickhouse(
   }
 )
 
-clickhouseInstance.useCaching()
-
-clickhouseInstance.onChunk((chunkId, table, rows) => {
-  // handle insertion
-})
-```
-
-## Cache
-```js
-const response = clickhouseInstance.cache(
-  'table_strings',
-  [{ date: '2021-01-01', string: 'str1' }],
-  {
-    responseFormat: 'CSVWithNames' // or other format
-    // other query options
-  }
-)
 ```
 
 ## Insert
 ```js
-const response = await clickhouseInstance.insert(
-  'table_strings',
-  [{ date: '2021-01-01', string: 'str1' }],
-  {
-    responseFormat: 'CSVWithNames' // or other format
-    // other query options
-  }
-)
+const response = await client.insert('table_strings', rows, {
+  responseFormat: 'CSVWithNames' // or other format
+  // other query options
+})
 ```
 
-## Query
-
+## Select
 ```js
 await clickhouseInstance.query<{ t: string }>('WITH now() as t SELECT t', {
   responseFormat: 'TSV',
   // ...other query options
 })
+```
 
+## Create
+```js
 await clickhouseInstance.query(`
   CREATE TABLE strings (
     date DateTime('UTC'),

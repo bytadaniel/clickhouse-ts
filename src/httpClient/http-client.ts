@@ -9,9 +9,12 @@ import {
   HttpClientResponse
 } from './http-client.interface'
 
-import { debug } from '../debug'
 import { ClickhouseHttpError } from '../errors'
 
+/**
+ * HttpClient wraps Axios and provides transparent data transfering between your code and clickhouse server
+ * It uses HTTP/1 protocol
+ */
 export class HttpClient {
   readonly #axios = axios
   readonly #https = https
@@ -24,6 +27,11 @@ export class HttpClient {
   readonly #database: string
   readonly #options: Record<string, unknown> | undefined
 
+  /**
+   * Create HttpClient instance
+   *
+   * @param {HttpClientConstructor} options
+   */
   constructor ({ context, options = {} }: HttpClientConstructor) {
     this.#url = context.url
     this.#port = context.port
@@ -35,6 +43,12 @@ export class HttpClient {
     this.#options = options
   }
 
+  /**
+   * Make full axios request and get full Clickhouse HTTP response
+   *
+   * @param {HttpClientRequest} config request config
+   * @returns {Promise<HttpClientResponse>}
+   */
   public async request<T>({
     params,
     data = '',
@@ -57,12 +71,9 @@ export class HttpClient {
       ...(this.#ca != null) && { httpsAgent: new this.#https.Agent({ ca: this.#ca }) }
     }
 
-    debug.log('http.request', 'Http request', { config })
-
     const response = await this.#axios
       .request(config)
       .catch((error: AxiosError) => {
-        console.log(error)
         throw new ClickhouseHttpError(error.response)
       })
 
