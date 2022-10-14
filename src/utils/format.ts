@@ -1,83 +1,91 @@
 /* eslint-disable no-tabs */
 import ss from 'sqlstring'
-import { InsertRows } from '../clickhouse'
+import { JSONFormatRow } from '../clickhouse'
 import { PreprocessInsertQueryError } from '../errors'
 import { isNull, isObject } from './common'
-import { FormatRowsResponse } from './interface'
+import { OptimizedJSONInsertFormat } from './interface'
 
 /**
- * This util optimizes JSON input and validates its data structure consistency
+ * Get optimized and validated insert format for http insert request
  *
- * @param {InsertRows} rows
- * @returns {FormatRowsResponse}
+ * @param {JSONFormatRow} rows
+ * @returns {OptimizedJSONInsertFormat}
  */
-export function formatInsertRows (rows: InsertRows): FormatRowsResponse {
-  const keysArr = Object.keys(rows[0])
-  const valuesSqlArr = rows.map(row => `(${keysArr.map(key => {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
-		return formatInsertValue(key, row[key])
-	}).join(',')})`)
-
+export function jsonRowsToInsertFormat (rows: JSONFormatRow[]): OptimizedJSONInsertFormat {
+  const keys = Object.keys(rows[0])
+  const values = rows.map(row => keys.map(key => getSimpleValidatedValue(key, row[key])))
   return {
-    keysArr,
-    valuesSqlFormat: valuesSqlArr.join(',')
+    keys,
+    values
   }
 }
 
 /**
- * Validation of row
+ * Get value enumeration in (...values), (...values) format
  *
- * @param {string} rowKey
- * @param {any} rowValue
+ * @param {OptimizedJSONInsertFormat} jsonInserFormat
+ * @returns {string}
+ */
+export function jsonInsertFormatToSqlValues ({ values: valuesList }: OptimizedJSONInsertFormat): string {
+  return valuesList.map(rowValues => `(${rowValues.join(',')})`).join(',')
+}
+
+/**
+ * Validation of key-value pair
+ *
+ * @param {string} key
+ * @param {any} value
  * @returns {string|number}
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function formatInsertValue (rowKey: string, rowValue: unknown | undefined): string | number {
+function getSimpleValidatedValue (key: string, value: unknown | undefined): string | number {
   /**
 	 * Check if column value not exists
 	 */
-  if (rowValue === undefined) {
-    throw new PreprocessInsertQueryError(`Cannot find value of column and has not default ${rowKey}`)
+  if (value === undefined) {
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    throw new PreprocessInsertQueryError(`Cannot find value of column and has not default ${value}`)
   }
 
   /**
 	 * is Array
 	 */
-  if (Array.isArray(rowValue)) {
-    return `[${rowValue.map(formatInsertValue).join(',')}]`
+  if (Array.isArray(value)) {
+    return `[${value.map(getSimpleValidatedValue).join(',')}]`
   }
 
   /**
 	 * is Map
 	 */
-  if (isObject(rowValue)) {
+  if (isObject(value)) {
     const mapValues = Object
-      .entries(rowValue)
+      .entries(value)
       .map(([mapKey, mapValue]) => ([ss.escape(mapKey), ss.escape(mapValue)]))
+
     return `map(${mapValues.join(',')})`
   }
 
   /**
 	 * is Number
 	 */
-  if (typeof rowValue === 'number') {
-    return rowValue
+  if (typeof value === 'number') {
+    return value
   }
 
   /**
 	 * is String
 	 */
-  if (typeof rowValue === 'string') {
-    return ss.escape(rowValue)
+  if (typeof value === 'string') {
+    return ss.escape(value)
   }
 
   /**
 	 * is Null
 	 */
-  if (isNull(rowValue)) {
+  if (isNull(value)) {
     return ss.escape('NULL')
   }
 
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  throw new PreprocessInsertQueryError(`Unknown type of row [${rowKey}:${rowValue}]`)
+  throw new PreprocessInsertQueryError(`Unknown type of key-value [${key}:${value}]`)
 }

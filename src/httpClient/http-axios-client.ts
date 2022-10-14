@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -18,7 +19,6 @@ import { HttpClickhouseAxiosError } from '../errors'
  */
 export class HttpAxiosClient {
   readonly #axios = axios
-  readonly #https = https
 
   readonly #url: string
   readonly #port: number
@@ -26,22 +26,26 @@ export class HttpAxiosClient {
   readonly #password: string
   readonly #user: string
   readonly #database: string
-  readonly #options: Record<string, unknown> | undefined
+
+  /**
+   * https://clickhouse.com/docs/en/operations/settings/settings/
+   */
+  readonly #clickhouseSettings: Record<string, unknown>
 
   /**
    * Create HttpClient instance
    *
    * @param {HttpClientConstructor} options
    */
-  constructor ({ context, options = {} }: HttpClientConstructor) {
-    this.#url = context.url
-    this.#port = context.port
-    this.#user = context.user
-    this.#password = context.password
-    this.#database = context.database
-    this.#ca = context.ca
+  constructor ({ connectionOptions, clickhouseSettings = {} }: HttpClientConstructor) {
+    this.#url = connectionOptions.url
+    this.#port = connectionOptions.port
+    this.#user = connectionOptions.user
+    this.#password = connectionOptions.password
+    this.#database = connectionOptions.database
+    this.#ca = connectionOptions.ca
 
-    this.#options = options
+    this.#clickhouseSettings = clickhouseSettings
   }
 
   /**
@@ -53,23 +57,26 @@ export class HttpAxiosClient {
   public async request<T>({
     params,
     data = '',
-    requestOptions = {}
+    queryOptions = {}
   }: HttpClientRequest): Promise<HttpClientResponse<T>> {
     const config: AxiosRequestConfig = {
       maxBodyLength: Infinity,
       method: 'POST',
       url: `${this.#url}:${this.#port}`,
       params: new URLSearchParams({
-        ...params,
+        ...Boolean(params?.query) && { query: params!.query },
         user: this.#user,
         password: this.#password,
         database: this.#database,
-        ...this.#options,
-        ...requestOptions
+        ...this.#clickhouseSettings,
+        ...queryOptions
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as unknown as Record<string, any>),
-      data,
-      ...(this.#ca != null) && { httpsAgent: new this.#https.Agent({ ca: this.#ca }) }
+      data
+    }
+
+    if (this.#ca !== null) {
+      config.httpsAgent = new https.Agent({ ca: this.#ca })
     }
 
     const response = await this.#axios

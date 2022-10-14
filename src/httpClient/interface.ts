@@ -2,8 +2,12 @@
 import { AxiosResponse } from 'axios'
 import { QueryOptions } from '../clickhouse'
 
+export interface RequestParams {
+  query: string
+}
+
 export interface HttpClientConstructor {
-  context: {
+  connectionOptions: {
     url: string
     port: number
     user: string
@@ -11,13 +15,13 @@ export interface HttpClientConstructor {
     database: string
     ca?: Buffer
   }
-  options?: Record<string, unknown>
+  clickhouseSettings?: Record<string, unknown>
 }
 
 export interface HttpClientRequest {
-  params?: Record<string, unknown>
+  params?: RequestParams
   data: string
-  requestOptions?: QueryOptions
+  queryOptions?: QueryOptions
 }
 
 export interface HttpClientResponse<T> {

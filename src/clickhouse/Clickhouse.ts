@@ -4,36 +4,36 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
-  InsertRows,
-  ConnectionConfig,
-  InstanceOptions,
+  JSONFormatRow,
+  Connection,
+  Options,
   QueryOptions
 } from './interface'
 
 import { HttpAxiosClient, HttpClientResponse } from '../httpClient'
-import { formatInsertRows } from '../utils'
+import { jsonInsertFormatToSqlValues, jsonRowsToInsertFormat } from '../utils'
 
 /**
  * Clickhouse is a simple client for making queries and getting responses
  */
 export class Clickhouse {
   readonly #httpClient: HttpAxiosClient
-  readonly #options: InstanceOptions
+  readonly #options: Options
 
   /**
    * Create Clickhouse instance
    *
-   * @param {ConnectionConfig} context
-   * @param {InstanceOptions} options
+   * @param {Connection} connection
+   * @param {Options} options
    */
   constructor (
-    context: ConnectionConfig,
-    options: InstanceOptions
+    connection: Connection,
+    options: Options
   ) {
     this.#options = options
     this.#httpClient = new HttpAxiosClient({
-      context,
-      options: this.#options.clickhouseOptions
+      connectionOptions: connection,
+      clickhouseSettings: this.#options.clickhouseSettings
     })
   }
 
@@ -49,19 +49,19 @@ export class Clickhouse {
   */
   public async insert (
     table: string,
-    rows: InsertRows,
+    rows: JSONFormatRow[],
     options: QueryOptions = {}
   ): Promise<number> {
     if (rows.length === 0) {
       return 0
     }
 
-    const { keysArr, valuesSqlFormat } = formatInsertRows(rows)
-    const keys = keysArr.join(',')
+    const jsonInsertFormat = jsonRowsToInsertFormat(rows)
+
     await this.#httpClient.request({
-      params: { query: `INSERT INTO ${table} (${keys}) VALUES` },
-      data: valuesSqlFormat,
-      requestOptions: options
+      params: { query: `INSERT INTO ${table} (${jsonInsertFormat.keys.join(',')}) VALUES` },
+      data: jsonInsertFormatToSqlValues(jsonInsertFormat),
+      queryOptions: options
     })
 
     return rows.length
@@ -80,20 +80,15 @@ export class Clickhouse {
     query: string,
     options: QueryOptions = {}
   ): Promise<HttpClientResponse<T>> {
-    let format: string
-
     const {
       noFormat = false,
       responseFormat = this.#options.defaultResponseFormat
     } = options
 
-    if (noFormat) {
-      format = ''
-    } else {
-      format = `FORMAT ${responseFormat}`
-    }
-    const request = `${query} ${format}`
+    const format = noFormat ? '' : `FORMAT ${responseFormat}`
 
-    return await this.#httpClient.request<T>({ data: request })
+    const SQL = `${query} ${format}`.trim()
+
+    return await this.#httpClient.request<T>({ data: SQL })
   }
 }
