@@ -8,7 +8,7 @@ const instance = new Clickhouse({
   user: 'explorer',
   password: '',
   database: 'default'
-}, { defaultResponseFormat: 'JSON' })
+}, { defaultFormat: 'JSON' })
 
 describe('clickhouse connection', () => {
   it('should be able to connect', async () => {
@@ -42,14 +42,14 @@ describe('clickhouse requests', () => {
 
 describe('clickhouse select formats', () => {
   it('should return JSON', async () => {
-    const response = await instance.query('SELECT NOW() as dt', { responseFormat: 'JSON' })
+    const response = await instance.query('SELECT NOW() as dt', { format: 'JSON' })
     expect(() => {
       JSON.parse(JSON.stringify(response.data.data[0]))
     }).not.toThrowError()
   })
 
   it('should not return JSON', async () => {
-    const response = await instance.query('SELECT NOW() as dt', { responseFormat: 'TabSeparated' })
+    const response = await instance.query('SELECT NOW() as dt', { format: 'TabSeparated' })
     expect(() => {
       JSON.parse(JSON.stringify(response.data.data[0]))
     }).toThrowError()

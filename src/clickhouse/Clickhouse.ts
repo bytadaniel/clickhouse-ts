@@ -82,12 +82,12 @@ export class Clickhouse {
   ): Promise<HttpClientResponse<T>> {
     const {
       noFormat = false,
-      responseFormat = this.#options.defaultResponseFormat
+      format = this.#options.defaultFormat
     } = options
 
-    const format = noFormat ? '' : `FORMAT ${responseFormat}`
+    const queryFormatCondition = noFormat ? '' : `FORMAT ${format}`
 
-    const SQL = `${query} ${format}`.trim()
+    const SQL = `${query} ${queryFormatCondition}`.trim()
 
     return await this.#httpClient.request<T>({ data: SQL })
   }

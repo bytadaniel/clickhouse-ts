@@ -11,7 +11,7 @@ export interface Connection {
 }
 export interface Options {
   clickhouseSettings?: Record<string, unknown>
-  defaultResponseFormat: 'JSON' | 'CSV' | 'TSV' | string
+  defaultFormat: 'JSON' | 'CSV' | 'TSV' | string
 }
 
 type ClickhouseMap = Record<string | number, string | number>
@@ -19,6 +19,6 @@ type ClickhouseMap = Record<string | number, string | number>
 export type JSONFormatRow = Record<string, string | number | ClickhouseMap>
 
 export interface QueryOptions extends Record<any, any> {
-  responseFormat?: 'JSON' | 'CSV' | 'TSV' | string
+  format?: 'JSON' | 'CSV' | 'TSV' | string
   noFormat?: boolean
 }
