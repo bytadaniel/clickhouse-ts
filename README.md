@@ -30,16 +30,16 @@ SQL Injection Protection with sqlstring
 ### 🌈 Free for use
 The package has a public license and is available for download to any developer!## Installation
 
+## *How can I insert in-memory batches?
+Starting from version `2.0.0` [the caching module](https://www.npmjs.com/package/clickcache) should be imported separately.
+This is because clickcache package, like clickhouse-ts, is going to be part of my Clickhouse Node.js ecosystem.
+In addition, it planned to introduce [data validation](https://www.npmjs.com/package/chvalid), as in Joi and model generation, as in mongodb/mongoose.
+
 ## Installation
 ```bash
 npm i clickhouse-ts
 npm i clickcache
 ```
-
-## *How can I insert in-memory batches?
-Starting from version `2.0.0` [the caching module](https://www.npmjs.com/package/clickcache) should be imported separately.
-This is because clickcache package, like clickhouse-ts, is going to be part of my Clickhouse Node.js ecosystem.
-In addition, it planned to introduce [data validation](https://www.npmjs.com/package/chvalid), as in Joi and model generation, as in mongodb/mongoose.
 
 ## Connection
 Only HTTP(s) protocol is supported.
