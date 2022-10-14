@@ -1,11 +1,11 @@
 # clickhouse-ts by @bytadaniel
 
 <p align="center">
-<img src=".static/logo.png" width="200px" align="center">
+<img src="https://cdn.worldvectorlogo.com/logos/clickhouse.svg" width="200px" align="center">
 <h1 align="center">ClickHouse Node.JS client</h1>
 </p>
 <br/>
-<p align="center">
+
 ![Travis (.org)](https://img.shields.io/travis/bytadaniel/clickhouse-ts)
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/bytadaniel/clickhouse-ts)
 ![npms.io (final)](https://img.shields.io/npms-io/final-score/clickhouse-ts)
@@ -13,12 +13,11 @@
 
 [![Join the chat at https://gitter.im/bytadaniel/clickhouse-ts](https://badges.gitter.im/bytadaniel/clickhouse-ts.svg)](https://gitter.im/bytadaniel/clickhouse-ts?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![GitHub followers](https://img.shields.io/github/followers/bytadaniel?style=social)
-</p>
 
 #### Select, insert in-memory batches safely and enjoy Clickhouse!
 
 ### Hello from [LookFor.sale](https://lookforsale.ru) developer which produces WB Analytics!
-![Backers on Open Collective](https://lookforsale.ru/wp-content/uploads/2021/06/lfsw.jpg)
+<img src="https://lookforsale.ru/wp-content/uploads/2021/06/lfsw.jpg" width="200px" align="center">
 
 ## TS client for clickhouse database with using in-memory caching rows for batch insertion
 
