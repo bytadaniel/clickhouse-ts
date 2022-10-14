@@ -2,7 +2,7 @@
 
 <p align="center">
 <img src="https://cdn.worldvectorlogo.com/logos/clickhouse.svg" width="200px" align="center">
-<h1 align="center">ClickHouse Node.JS client</h1>
+<h1 align="center">Unofficial ClickHouse TypeScript client</h1>
 </p>
 <br/>
 
@@ -17,7 +17,6 @@
 #### Select, insert in-memory batches safely and enjoy Clickhouse!
 
 ### Hello from [LookFor.sale](https://lookforsale.ru) developer which produces WB Analytics!
-<img src="https://lookforsale.ru/wp-content/uploads/2021/06/lfsw.jpg" width="200px" align="center">
 
 ## TS client for clickhouse database with using in-memory caching rows for batch insertion
 
