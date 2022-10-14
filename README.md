@@ -1,8 +1,6 @@
-# clickhouse-ts by @bytadaniel
-
 <p align="center">
 <img src="https://cdn.worldvectorlogo.com/logos/clickhouse.svg" width="200px" align="center">
-<h1 align="center">Unofficial ClickHouse TypeScript client</h1>
+<h1 align="center">Unofficial ClickHouse TypeScript client by @bytadaniel</h1>
 </p>
 <br/>
 
