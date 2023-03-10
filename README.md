@@ -36,7 +36,14 @@ npm i clickhouse-ts
 npm i clickcache
 ```
 
-## *How can I insert in-memory batches?
+## Roadmap
+Implement [http/cli-queries-with-parameters](https://clickhouse.com/docs/en/interfaces/http/#cli-queries-with-parameters) feature
+Complete in/out data validation with schemas
+Make it works with GrahpQL or something like [cube.js](http://cube.dev)
+
+## *How to insert?
+Basically, this client supports data insertion, but you should consider collecting your data before passing it as an argument here. Use `clickcache` to prepare batches!
+
 Starting from version `2.0.0` [the caching module](https://www.npmjs.com/package/clickcache) should be imported separately.
 This is because clickcache package, like clickhouse-ts, is going to be part of my Clickhouse Node.js ecosystem.
 In addition, it planned to introduce [data validation](https://www.npmjs.com/package/chvalid), as in Joi and model generation, as in mongodb/mongoose.
@@ -66,7 +73,6 @@ const client = new Clickhouse(
 ```
 
 ## Usage examples
-Basically, this client supports data insertion, but you should consider collecting your data before passing it as an argument here. Use `clickcache` to prepare batches!
 ## Insert
 ```ts
 const response = await client.insert('table_strings', rows, {
