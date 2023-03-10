@@ -42,9 +42,9 @@ npm i clickcache
 ```
 
 ## Roadmap
-Implement [http/cli-queries-with-parameters](https://clickhouse.com/docs/en/interfaces/http/#cli-queries-with-parameters) feature
-Complete in/out data validation with schemas
-Make it works with GrahpQL or something like [cube.js](http://cube.dev)
+- Implement [http/cli-queries-with-parameters](https://clickhouse.com/docs/en/interfaces/http/#cli-queries-with-parameters) feature
+- Complete in/out data validation with schemas
+- Make it works with GrahpQL or something like [cube.js](http://cube.dev)
 
 ## *How to insert?
 Basically, this client supports data insertion, but you should consider collecting your data before passing it as an argument here. Use `clickcache` to prepare batches!
