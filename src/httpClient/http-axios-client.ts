@@ -14,7 +14,7 @@ import {
 import { HttpClickhouseAxiosError } from '../errors'
 
 /**
- * HttpClient wraps Axios and provides transparent data transfering between your code and clickhouse server
+ * HttpClient wraps Axios and provides transparent data transferring between your code and clickhouse server
  * It uses HTTP/1 protocol
  */
 export class HttpAxiosClient {

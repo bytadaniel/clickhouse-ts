@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Clickhouse } from '../src/clickhouse'
 
 const instance = new Clickhouse({
@@ -33,8 +31,10 @@ describe('clickhouse requests', () => {
     try {
       const insertCount = await instance.insert('covid', [{ date: '2020-01-01' }])
       expect(insertCount).toEqual(1)
-    } catch (e: any) {
-      const message = e.message as string
+    } catch (_e: unknown) {
+      const e = _e as Error
+
+      const message = e.message
       expect(message.includes('Not enough privileges')).toBeTruthy()
     }
   })
@@ -45,13 +45,13 @@ describe('clickhouse select formats', () => {
     const response = await instance.query('SELECT NOW() as dt', { format: 'JSON' })
     expect(() => {
       JSON.parse(JSON.stringify(response.data.data[0]))
-    }).not.toThrowError()
+    }).not.toThrow()
   })
 
   it('should not return JSON', async () => {
     const response = await instance.query('SELECT NOW() as dt', { format: 'TabSeparated' })
     expect(() => {
       JSON.parse(JSON.stringify(response.data.data[0]))
-    }).toThrowError()
+    }).toThrow()
   })
 })
