@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * HttpClickhouseError is a custom error for handling Axios Crashes or Clickhouse bad responses
  */
 export class HttpClickhouseError extends Error {
   status: number
   statusText: string
-  headers: Record<any, any>
+  headers: Record<string, unknown>
 
   /**
    * Create HttpClickhouseError instance

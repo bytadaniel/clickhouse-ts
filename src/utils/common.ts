@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-tabs */
-
 /**
  * Native implementation of lodash isObject
  *
@@ -8,9 +5,7 @@
  * @returns {boolean} is object
  */
 export function isObject (value: any): value is Record<string, any> {
-  return typeof value === 'object' &&
-		!Array.isArray(value) &&
-		value !== null
+  return typeof value === 'object' && !Array.isArray(value) && value !== null
 }
 
 /**

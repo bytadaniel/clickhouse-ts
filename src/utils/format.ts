@@ -1,4 +1,3 @@
-/* eslint-disable no-tabs */
 import ss from 'sqlstring'
 import { JSONFormatRow } from '../clickhouse'
 import { PreprocessInsertQueryError } from '../errors'
@@ -23,7 +22,7 @@ export function jsonRowsToInsertFormat (rows: JSONFormatRow[]): OptimizedJSONIns
 /**
  * Get value enumeration in (...values), (...values) format
  *
- * @param {OptimizedJSONInsertFormat} jsonInserFormat
+ * @param {OptimizedJSONInsertFormat} jsonInsertFormat
  * @returns {string}
  */
 export function jsonInsertFormatToSqlValues ({ values: valuesList }: OptimizedJSONInsertFormat): string {
@@ -40,23 +39,23 @@ export function jsonInsertFormatToSqlValues ({ values: valuesList }: OptimizedJS
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getSimpleValidatedValue (key: string, value: unknown | undefined): string | number {
   /**
-	 * Check if column value not exists
-	 */
+   * Check if column value not exists
+   */
   if (value === undefined) {
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new PreprocessInsertQueryError(`Cannot find value of column and has not default ${value}`)
   }
 
   /**
-	 * is Array
-	 */
+   * is Array
+   */
   if (Array.isArray(value)) {
     return `[${value.map(getSimpleValidatedValue).join(',')}]`
   }
 
   /**
-	 * is Map
-	 */
+   * is Map
+   */
   if (isObject(value)) {
     const mapValues = Object
       .entries(value)
@@ -66,22 +65,22 @@ function getSimpleValidatedValue (key: string, value: unknown | undefined): stri
   }
 
   /**
-	 * is Number
-	 */
+   * is Number
+   */
   if (typeof value === 'number') {
     return value
   }
 
   /**
-	 * is String
-	 */
+   * is String
+   */
   if (typeof value === 'string') {
     return ss.escape(value)
   }
 
   /**
-	 * is Null
-	 */
+   * is Null
+   */
   if (isNull(value)) {
     return ss.escape('NULL')
   }

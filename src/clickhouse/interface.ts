@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// import * as Types from './clickhouse.types'
-
 export interface Connection {
   url: string
   port: number
